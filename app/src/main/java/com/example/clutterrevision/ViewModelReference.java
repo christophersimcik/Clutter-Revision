@@ -1,6 +1,8 @@
 package com.example.clutterrevision;
 
 import android.app.Application;
+import android.content.Context;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -37,13 +39,15 @@ public class ViewModelReference extends AndroidViewModel implements ObserverNote
         this.pojoDay = pojoDay;
     }
 
-    public void insert(PojoNote newNote){
+    public void insert(PojoNote newNote, Context context){
         this.pojoNote = newNote;
         if(newNote.getImage().equals("")){
             newNote.setImage("No Title");
         }
         if(!newNote.getContent().equals("")) {
             repositoryNotes.insert(newNote);
+        }else{
+            noteRejectedWarning(context);
         }
     }
 
@@ -88,15 +92,6 @@ public class ViewModelReference extends AndroidViewModel implements ObserverNote
         return new PojoNote(id,content,image,type,day);
     }
 
-    public void updateDay(){
-        if(this.pojoDay != null){
-            int updatedCount = pojoDay.getNumberOfNotes() + 1;
-            this.pojoDay.setNumberOfNotes(updatedCount);
-            repositoryDay.update(this.pojoDay);
-        }
-    }
-
-
     @Override
     public void onNoteRetrieved(PojoNote pojoNote) {
 
@@ -104,12 +99,15 @@ public class ViewModelReference extends AndroidViewModel implements ObserverNote
 
     @Override
     public void onNoteInserted() {
-        updateDay();
 
     }
 
     @Override
     public void onNoteUpdated() {
-        updateDay();
+
+    }
+
+    private void noteRejectedWarning(Context context){
+        Toast.makeText(context,"No Content - Deleted",Toast.LENGTH_SHORT).show();
     }
 }

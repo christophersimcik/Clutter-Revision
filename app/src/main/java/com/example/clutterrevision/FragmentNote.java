@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import java.io.PipedOutputStream;
 import java.util.List;
@@ -22,6 +23,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 public class FragmentNote extends Fragment {
+
     EditText body;
     EditText title;
     Button submit;
@@ -31,6 +33,8 @@ public class FragmentNote extends Fragment {
     Observer<CharSequence> titleObserver;
     MainActivity mainActivity;
     TextWatcher titleWatcher;
+    TextView dateText;
+    Boolean canPress = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -49,6 +53,8 @@ public class FragmentNote extends Fragment {
         viewModelNote.setPojoDay(mainActivity.viewModelActivity.pojoDay);
         ViewDataBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_note, container, false);
         View root = binding.getRoot();
+        dateText = root.findViewById(R.id.date_id_text);
+        dateText.setText(viewModelNote.parseDate());
         body = root.findViewById(R.id.body_note);
         body.addTextChangedListener(new TextWatcher() {
             @Override
@@ -85,25 +91,28 @@ public class FragmentNote extends Fragment {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View view) {
-
-                submit.setTextColor(getResources().getColor(R.color.light_gray, null));
-                submit.setBackground(getResources().getDrawable(R.drawable.button_inactive, null));
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (viewModelNote.newNote) {
-                            viewModelNote.insert(viewModelNote.pojoNote);
-                        } else {
-                            viewModelNote.update();
+                if (canPress) {
+                    canPress = false;
+                    submit.setTextColor(getResources().getColor(R.color.light_gray, null));
+                    submit.setBackground(getResources().getDrawable(R.drawable.button_inactive, null));
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (viewModelNote.newNote) {
+                                    viewModelNote.insert(viewModelNote.pojoNote, getContext());
+                            } else {
+                                viewModelNote.update();
+                            }
+                            jumpToToday(mainActivity);
+                            fragmentManager.popBackStack();
                         }
-                        viewModelNote.updateDay();
-                        jumpToToday(mainActivity);
-                        fragmentManager.popBackStack();
-                    }
-                }, 250);
+                    }, 250);
+                }
             }
+
         });
+
         initObservers();
         registerObservers();
         return root;
@@ -139,7 +148,9 @@ public class FragmentNote extends Fragment {
     private void jumpToToday(MainActivity mainActivity) {
         ViewModelActivity vma = mainActivity.viewModelActivity;
         vma.setPosition(vma.datesLiveData.getValue().size() - 1);
-        vma.setCurrentDay(vma.dayHelper.getDateAsString());
+        vma.setCurrentDay(DayHelper.getInstance().getDateAsString());
     }
+
+
 
 }

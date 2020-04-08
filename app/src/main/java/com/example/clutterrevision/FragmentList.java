@@ -32,7 +32,6 @@ public class FragmentList extends Fragment{
     RecyclerView checklistView;
     private Button addItem;
     private AdapterCheckList recyclerViewChecklist;
-    private RecyclerView.LayoutManager layoutManager;
     private EmojiEditText emojiEditText;
     private ViewModelList viewModelList;
     private Handler handler = new Handler();
@@ -52,7 +51,6 @@ public class FragmentList extends Fragment{
             fragmentManager = getActivity().getSupportFragmentManager();
         }
         Bundle bundle = getArguments();
-        layoutManager = new LinearLayoutManager(getContext());
         viewModelList = ViewModelProviders.of(this).get(ViewModelList.class);
         recyclerViewChecklist = new AdapterCheckList(getContext(), viewModelList);
         recyclerViewChecklist.hasStableIds();
@@ -66,7 +64,7 @@ public class FragmentList extends Fragment{
             initObserver();
             registerObservers();
         }
-        this.setRetainInstance(true);
+        setRetainInstance(true);
 
     }
 
@@ -98,7 +96,7 @@ public class FragmentList extends Fragment{
         });
         checklistView = root.findViewById(R.id.checklist_recycler_view);
         checklistView.setAdapter(recyclerViewChecklist);
-        checklistView.setLayoutManager(layoutManager);
+        checklistView.setLayoutManager(new LinearLayoutManager(getContext()));
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchCallback);
         itemTouchHelper.attachToRecyclerView(checklistView);
         addItem = root.findViewById(R.id.button_add_item);
@@ -113,7 +111,7 @@ public class FragmentList extends Fragment{
                         public void run() {
                             addItem.setBackground(getResources().getDrawable(R.drawable.add_checklist_item, null));
                             viewModelList.addCheckBox();
-                            layoutManager.smoothScrollToPosition(checklistView, null, 0);
+                            checklistView.getLayoutManager().smoothScrollToPosition(checklistView, null, 0);
                             active = false;
                         }
                     }, 150);

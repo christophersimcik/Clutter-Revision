@@ -1,15 +1,9 @@
 package com.example.clutterrevision;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.provider.FontRequest;
 import androidx.emoji.text.EmojiCompat;
 import androidx.emoji.text.FontRequestEmojiCompatConfig;
@@ -21,9 +15,11 @@ import androidx.lifecycle.ViewModelProviders;
 import android.view.Menu;
 import android.view.MenuItem;
 
+
+import com.google.android.material.appbar.AppBarLayout;
+
 import net.danlew.android.joda.JodaTimeAndroid;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -32,11 +28,14 @@ public class MainActivity extends AppCompatActivity {
     ViewModelActivity viewModelActivity;
     PermissionsHelper permissionsHelper = new PermissionsHelper();
     Observer observerDates;
+    AppBarLayout appBarLayout;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        JodaTimeAndroid.init(this.getApplicationContext());
+
+        JodaTimeAndroid.init(this);
         setContentView(R.layout.activity_main);
         viewModelActivity = ViewModelProviders.of(this).get(ViewModelActivity.class);
         viewModelActivity.setFragmentManager(getSupportFragmentManager());
@@ -48,13 +47,11 @@ public class MainActivity extends AppCompatActivity {
         });
         initObserver();
         // view model activity dates liver data observe
-        viewModelActivity.datesLiveData.observe(this,observerDates);
+        viewModelActivity.datesLiveData.observe(this, observerDates);
         Toolbar toolbar = findViewById(R.id.toolbar);
+        appBarLayout = findViewById(R.id.appbar);
+        appBarLayout.setOutlineProvider(null);
         setSupportActionBar(toolbar);
-        if(savedInstanceState != null){
-            viewModelActivity.getSavedFragment(savedInstanceState);
-        }
-
         FontRequest fontRequest = new FontRequest(
                 "com.google.android.gms.fonts",
                 "com.google.android.gms",
@@ -65,8 +62,8 @@ public class MainActivity extends AppCompatActivity {
         EmojiCompat.init(config);
         permissionsHelper.checkPermissions(this);
         viewModelActivity.deleteAllEmptyDates();
-        System.out.println(" MAIN ACTIVITY ON_CREATE CALLED");
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -77,20 +74,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        switch(id){
-            case R.id.action_settings:
-                return true;
+        switch (id) {
             case R.id.calendar_settings:
                 FragmentCalendar fragmentCalendar;
-                if(fragmentManager.findFragmentByTag("calendar")!= null){
+                if (fragmentManager.findFragmentByTag("calendar") != null) {
                     fragmentCalendar = (FragmentCalendar) fragmentManager.findFragmentByTag("calendar");
-                }else{
+                } else {
                     fragmentCalendar = new FragmentCalendar();
                 }
                 fragmentManager.beginTransaction().replace(R.id.fragment_main, fragmentCalendar, "calendar")
                         .addToBackStack("calendar")
                         .commit();
                 return true;
+
+            case R.id.search_settings:
+                allSearch();
+                return true;
+
         }
 
         return super.onOptionsItemSelected(item);
@@ -103,42 +103,65 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if(fragmentManager.findFragmentById(R.id.fragment_main) instanceof FragmentList){
+        if (fragmentManager.findFragmentById(R.id.fragment_main) instanceof FragmentList) {
             FragmentList fragmentList = (FragmentList) fragmentManager.findFragmentById(R.id.fragment_main);
-            if(fragmentList.newList) {
-                viewModelActivity.setCurrentDay(viewModelActivity.dayHelper.getDateAsString());
+            if (fragmentList.newList) {
+                viewModelActivity.setCurrentDay(DayHelper.getInstance().getDateAsString());
                 viewModelActivity.setPosition(viewModelActivity.datesLiveData.getValue().size() - 1);
             }
         }
-        if(fragmentManager.getBackStackEntryCount()>1){
+        if (fragmentManager.getBackStackEntryCount() > 1) {
             fragmentManager.popBackStackImmediate();
             return;
+        }else{
+            if(!(fragmentManager.findFragmentById(R.id.fragment_main) instanceof FragmentNotes )){
+                fragmentManager.beginTransaction()
+                        .replace(R.id.fragment_main,new FragmentNotes(),"notes")
+                        .addToBackStack("notes")
+                        .commit();
+            }
         }
-        System.out.println("task id = " + getTaskId());
-       // super.onBackPressed();
-    }
+          return;
+        }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         if (fragmentManager.findFragmentById(R.id.fragment_main) != null) {
             String key = fragmentManager.findFragmentById(R.id.fragment_main).getTag();
-            outState.putString("key", key);
+            outState.putString("key", "book");
             fragmentManager.putFragment(outState, key, fragmentManager.findFragmentById(R.id.fragment_main));
         }
     }
 
-    public void initObserver(){
+    public void initObserver() {
         observerDates = new Observer<List<PojoDay>>() {
             @Override
             public void onChanged(List<PojoDay> pojoDays) {
-                System.out.println("*** main_activity = " + pojoDays.size());
                 viewModelActivity.inititiateFragments();
-                viewModelActivity.setPosition(pojoDays.size()-1);
+                viewModelActivity.setPosition(pojoDays.size() - 1);
             }
         };
-
     }
 
+    private void allSearch() {
+        FragmentSearch fragmentSearch;
+        Fragment fragment;
+        Bundle bundle = new Bundle();
+        fragment = fragmentManager.findFragmentByTag("search");
+        if (fragment instanceof FragmentSearch) {
+            fragmentSearch = (FragmentSearch) fragment;
+        } else {
+            fragmentSearch = new FragmentSearch();
+        }
+        bundle.putInt(Constants.SEARCH_TYPE, Constants.SEARCH_ALL);
+        fragmentSearch.setArguments(bundle);
+        fragmentManager.beginTransaction()
+                .replace(R.id.fragment_main, fragmentSearch, "search")
+                .addToBackStack("search")
+                .commit();
     }
+    }
+
+
 

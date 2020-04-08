@@ -24,11 +24,13 @@ public class ViewModelBook extends AndroidViewModel{
 
     public void getData(Bundle bundle){
         String query;
+
         if(bundle != null && bundle.containsKey("query")){
             query = bundle.getString("query");
         }else{
             query = "";
         }
+
         repositoryGoogleBooksAPI = new RepositoryGoogleBooksAPI(query);
         pojoBooks = repositoryGoogleBooksAPI;
     }

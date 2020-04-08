@@ -23,24 +23,19 @@ public class FragmentDates extends Fragment implements DateObserver{
     AdapterDay adapterDay;
     ViewModelDay viewModelDay;
     Observer observerDates;
-    LinearLayoutManager linearLayoutManager;
     MainActivity mainActivity;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        linearLayoutManager = new LinearLayoutManager(this.getContext(),LinearLayoutManager.HORIZONTAL,false);
         fragmentManager = getActivity().getSupportFragmentManager();
         viewModelDay = ViewModelProviders.of(requireActivity()).get(ViewModelDay.class);
         adapterDay = new AdapterDay(this.getContext(), viewModelDay);
         mainActivity = (MainActivity) getActivity();
-        if(mainActivity.viewModelActivity.datesLiveData != null) {
-            viewModelDay.listOfDays = mainActivity.viewModelActivity.datesLiveData;
             initObserver();
             registerObservers();
 
-        }
-        this.setRetainInstance(true);
+        setRetainInstance(true);
     }
 
     @Override
@@ -50,8 +45,11 @@ public class FragmentDates extends Fragment implements DateObserver{
         View root = binding.getRoot();
         recyclerView = root.findViewById(R.id.dates_recycler_view);
         recyclerView.setAdapter(adapterDay);
-        recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false));
         recyclerView.register(this);
+        if(mainActivity.viewModelActivity.datesLiveData != null) {
+            viewModelDay.listOfDays = mainActivity.viewModelActivity.datesLiveData;
+        }
         return root;
     }
 
@@ -68,7 +66,7 @@ public class FragmentDates extends Fragment implements DateObserver{
                     }
                     mainActivity.viewModelActivity.inititiateFragments();
                     adapterDay.setData(pojoDays);
-                    linearLayoutManager.scrollToPosition(position);
+                    recyclerView.getLayoutManager().scrollToPosition(position);
             }
         };
     }
@@ -81,7 +79,6 @@ public class FragmentDates extends Fragment implements DateObserver{
     public void onDateChanged(String date) {
         System.out.println("*** fragment dates, date changed to " + date );
         viewModelDay.getDaysNotes(date);
-        viewModelDay.setPojoDay(viewModelDay.listOfDays.getValue().get(recyclerView.myPosition));
         mainActivity.viewModelActivity.setCurrentDay(date);
     }
 

@@ -15,6 +15,118 @@ public class RepositoryDay implements SubjectDates{
     private List<ObserverDates> observerDates = new ArrayList<>();
     String name;
 
+    public void addNote(String string){
+        new AsyncTask<String, Void, Void>() {
+            @Override
+            protected Void doInBackground(String... strings) {
+                daoDay.addNote(strings[0]);
+                System.out.println("*** a d d i n g ");
+                return null;
+            }
+        }.execute(string);
+    }
+
+    public void addAudio(String string){
+        new AsyncTask<String, Void, Void>() {
+            @Override
+            protected Void doInBackground(String... strings) {
+                daoDay.addAudio(strings[0]);
+                System.out.println("*** a d d i n g");
+                return null;
+            }
+        }.execute(string);
+    }
+
+    public void addReference(String string){
+        new AsyncTask<String, Void, Void>() {
+            @Override
+            protected Void doInBackground(String... strings) {
+                daoDay.addReference(strings[0]);
+                System.out.println("*** a d d i n g ");
+                return null;
+            }
+        }.execute(string);
+    }
+
+    public void addList(String string){
+        new AsyncTask<String, Void, Void>() {
+            @Override
+            protected Void doInBackground(String... strings) {
+                daoDay.addList(strings[0]);
+                System.out.println("*** a d d i n g ");
+                return null;
+            }
+        }.execute(string);
+    }
+
+    public void addBook(String string){
+        new AsyncTask<String, Void, Void>() {
+            @Override
+            protected Void doInBackground(String... strings) {
+                daoDay.addBook(strings[0]);
+                System.out.println("*** a d d i n g ");
+                return null;
+            }
+        }.execute(string);
+    }
+
+    public void deleteNote(String string){
+        new AsyncTask<String, Void, Void>() {
+            @Override
+            protected Void doInBackground(String... strings) {
+                daoDay.deleteNote(strings[0]);
+                System.out.println("*** d e l e t i n g");
+                return null;
+            }
+        }.execute(string);
+    }
+
+    public void deleteAudio(String string){
+        new AsyncTask<String, Void, Void>() {
+            @Override
+            protected Void doInBackground(String... strings) {
+                daoDay.deleteAudio(strings[0]);
+                System.out.println("*** d e l e t i n g");
+                return null;
+            }
+        }.execute(string);
+    }
+
+    public void deleteReference(String string){
+        new AsyncTask<String, Void, Void>() {
+            @Override
+            protected Void doInBackground(String... strings) {
+                daoDay.deleteReference(strings[0]);
+                System.out.println("*** d e l e t i n g");
+                return null;
+            }
+        }.execute(string);
+    }
+
+    public void deleteList(String string){
+        new AsyncTask<String, Void, Void>() {
+            @Override
+            protected Void doInBackground(String... strings) {
+                daoDay.deleteList(strings[0]);
+                System.out.println("*** d e l e t i n g");
+                return null;
+            }
+        }.execute(string);
+    }
+
+    public void deleteBook(String string){
+        new AsyncTask<String, Void, Void>() {
+            @Override
+            protected Void doInBackground(String... strings) {
+                daoDay.deleteBook(strings[0]);
+                System.out.println("*** d e l e t i n g b o o k");
+                return null;
+            }
+        }.execute(string);
+    }
+
+
+
     public RepositoryDay(Application application) {
         this.application = application;
         this.name = name;
@@ -26,18 +138,16 @@ public class RepositoryDay implements SubjectDates{
         daoDay = databaseClutter.getDaoDay();
     }
 
+    public LiveData<List<PojoDay>> getAllDaysAsLiveData(){
+        return daoDay.getAllDaysAsLiveData();
+    }
+
     public void insert(final PojoDay pojoDay) {
-        AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
+        AsyncTask<PojoDay, Void, Void> asyncTask = new AsyncTask<PojoDay, Void, Void>() {
             @Override
-            protected Void doInBackground(Void... voids) {
-                System.out.println(
-                        "*** note : day id = " +
-                                pojoDay.getDay_id() + " mnth = " +
-                                pojoDay.getDayOfMonth() + " week = " +
-                                pojoDay.getDayOfWeek() + " year = " +
-                                pojoDay.getYear()
-                );
-                daoDay.insert(pojoDay);
+            protected Void doInBackground(PojoDay... pojoDays) {
+                daoDay.insert(pojoDays[0]);
+                System.out.println("*** i n s e r t i n g ");
                 return null;
             }
 
@@ -47,29 +157,29 @@ public class RepositoryDay implements SubjectDates{
                 notifyDateInserted();
             }
         };
-        asyncTask.execute();
+        asyncTask.execute(pojoDay);
     }
 
     public void delete(final PojoDay pojoDay) {
-        AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
+        AsyncTask<PojoDay, Void, Void> asyncTask = new AsyncTask<PojoDay, Void, Void>() {
             @Override
-            protected Void doInBackground(Void... voids) {
-                daoDay.delete(pojoDay);
-                System.out.println("day ");
+            protected Void doInBackground(PojoDay... pojoDays) {
+                daoDay.delete(pojoDays[0]);
                 return null;
             }
         };
-        asyncTask.execute();
+        asyncTask.execute(pojoDay);
     }
+
     public void deleteAll(final PojoDay... pojoDays) {
-        AsyncTask<Void, Void, Void> asyncTask = new AsyncTask<Void, Void, Void>() {
+        AsyncTask<PojoDay[], Void, Void> asyncTask = new AsyncTask<PojoDay[], Void, Void>() {
             @Override
-            protected Void doInBackground(Void... voids) {
-                daoDay.deleteAll(pojoDays);
+            protected Void doInBackground(PojoDay[]... pojoDays) {
+                daoDay.deleteAll(pojoDays[0]);
                 return null;
             }
         };
-        asyncTask.execute();
+        asyncTask.execute(pojoDays);
     }
 
     public void deleteEmpty(){
@@ -84,21 +194,19 @@ public class RepositoryDay implements SubjectDates{
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                System.out.println("*** main_activity dates deleted");
                 notifyEmptiesDeleted();
             }
         }.execute();
     }
 
     public void update(final PojoDay pojoDay) {
-        new AsyncTask<Void, Void, Void>() {
+        new AsyncTask<PojoDay, Void, Void>() {
             @Override
-            protected Void doInBackground(Void... voids) {
-                daoDay.update(pojoDay);
-                System.out.println("updating ok ");
+            protected Void doInBackground(PojoDay... pojoDays) {
+                daoDay.update(pojoDays[0]);
                 return null;
             }
-        }.execute();
+        }.execute(pojoDay);
     }
 
     public void getAllDays() {
@@ -112,17 +220,17 @@ public class RepositoryDay implements SubjectDates{
             protected void onPostExecute(List<PojoDay> list) {
                 super.onPostExecute(list);
                 notifyDatesRetrieved(list);
+                System.out.println("ooo = " + list.get(list.size()-1).getNumberOfNotes());
 
             }
         }.execute();
     }
 
-    public void checkForDay(final String id){
-        new AsyncTask<Void,Void,PojoDay>(){
+    public void checkForDay(String id){
+        new AsyncTask<String,Void,PojoDay>(){
             @Override
-            protected PojoDay doInBackground(Void... voids) {
-                System.out.println("*** " + "check for day");
-                return daoDay.getThisDay(id);
+            protected PojoDay doInBackground(String... strings) {
+                return daoDay.getThisDay(strings[0]);
             }
 
             @Override
@@ -130,7 +238,7 @@ public class RepositoryDay implements SubjectDates{
                 super.onPostExecute(pojoDay);
                 notifyDateChecked(pojoDay);
             }
-        }.execute();
+        }.execute(id);
     }
 
     @Override

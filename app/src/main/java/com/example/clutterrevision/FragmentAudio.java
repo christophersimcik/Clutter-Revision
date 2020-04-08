@@ -1,6 +1,7 @@
 package com.example.clutterrevision;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -33,22 +34,20 @@ public class FragmentAudio extends Fragment {
     Button stop;
     Button submit;
     Boolean playing = false;
-    Boolean clicked = false;
-    MainActivity activity;
+    Boolean canPress = true;
+    MainActivity mainActivity;
     int activeColor, inactiveColor;
     Drawable buttonActive, buttonInactive, buttonRed, buttonGreen;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.setRetainInstance(true);
+        setRetainInstance(true);
         assignDrawables();
         assignColors();
-        activity = (MainActivity) this.getActivity();
-
+        mainActivity = (MainActivity) this.getActivity();
         fragmentManager = getActivity().getSupportFragmentManager();
         vmAudio = ViewModelProviders.of(this).get(ViewModelAudio.class);
-
     }
 
     @Override
@@ -56,6 +55,7 @@ public class FragmentAudio extends Fragment {
         super.onCreateView(inflater, container, savedInstanceState);
         ViewDataBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_audio, container, false);
         View root = binding.getRoot();
+        vmAudio.setPojoDay(mainActivity.viewModelActivity.pojoDay);
         start = root.findViewById(R.id.start);
         start.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,7 +84,9 @@ public class FragmentAudio extends Fragment {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                    if(vmAudio.fileHelper.audioFile == null){
+                if (canPress) {
+                    canPress = false;
+                    if (vmAudio.fileHelper.audioFile == null) {
                         try {
                             vmAudio.writeFile(getActivity());
                         } catch (IOException e) {
@@ -94,10 +96,11 @@ public class FragmentAudio extends Fragment {
                     vmAudio.submit(getActivity());
                     playing = false;
                     vmAudio.getData();
-                vmAudio.insert(vmAudio.createNote());
-                jumpToToday(activity);
-                fragmentManager.popBackStack();
+                    vmAudio.insert(vmAudio.createNote());
+                    jumpToToday(mainActivity);
+                    fragmentManager.popBackStack();
 
+                }
             }
         });
         visualAudioRealtime = root.findViewById(R.id.visualizer);
@@ -186,7 +189,7 @@ public class FragmentAudio extends Fragment {
     private void jumpToToday(MainActivity mainActivity){
         ViewModelActivity vma = mainActivity.viewModelActivity;
         vma.setPosition(vma.datesLiveData.getValue().size()-1);
-        vma.setCurrentDay(vma.dayHelper.getDateAsString());
+        vma.setCurrentDay(DayHelper.getInstance().getDateAsString());
     }
 
     @Override

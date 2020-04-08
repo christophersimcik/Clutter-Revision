@@ -1,32 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content">
+    <TextView
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/note_tab_color"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/default_text"
+        android:textSize="10sp"
+        android:layout_marginBottom="3dp"
+        android:layout_marginTop="3dp"
+        android:id="@+id/date_id_text">
+    </TextView>
     <View
-        android:id="@+id/refer_tab"
+        android:id="@+id/note_tab_color"
+        android:layout_alignParentTop="true"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@android:color/holo_blue_bright">
+        android:background="@android:color/holo_blue_light">
     </View>
-    <LinearLayout
+
+    <View
+        android:id="@+id/note_tab_gray"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:layout_height="1dp"
+        android:background="@color/default_text">
+    </View>
+
     <ImageButton
         android:layout_margin="5dp"
         android:layout_width="25dp"
         android:layout_height="25dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
         android:id="@+id/type"
         android:background="@drawable/globe_1">
     </ImageButton>
     <TextView
+        android:layout_centerVertical="true"
         android:layout_margin="5dp"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:gravity="center"
-        android:id="@+id/description">
+        android:textSize="20sp"
+        android:id="@+id/description"
+        android:maxLength="10"
+        android:maxLines="1"
+        android:ellipsize="end">">
     </TextView>
-    </LinearLayout>
-</LinearLayout>
+</RelativeLayout>

@@ -6,20 +6,20 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 
 public class WaveFormContour {
-    private RectF[] rects;
-    public WaveFormContour(RectF[] rects){
+    private Rect[] rects;
+    public WaveFormContour(Rect[] rects){
         this.rects = rects;
     }
     public Path pathFinder(){
         Path path = new Path();
-        RectF previousRect = rects[0];
+        Rect previousRect = rects[0];
         path.moveTo(rects[0].left,rects[0].top);
         path.lineTo(rects[0].left,rects[0].bottom);
         path.lineTo(rects[0].right,rects[0].bottom);
         path.moveTo(rects[0].left,rects[0].top);
         path.lineTo(rects[0].right,rects[0].top);
         for(int i = 1; i < rects.length; i ++){
-            RectF r = rects[i];
+            Rect r = rects[i];
             path.moveTo(previousRect.right,previousRect.top);
             path.lineTo(r.left,r.top);
             path.lineTo(r.right,r.top);
@@ -28,7 +28,7 @@ public class WaveFormContour {
             path.lineTo(r.right,r.bottom);
             previousRect = r;
         }
-        RectF lastRect = rects[rects.length-1];
+        Rect lastRect = rects[rects.length-1];
         path.moveTo(previousRect.right,previousRect.top);
         path.lineTo(lastRect.left,lastRect.top);
         path.lineTo(lastRect.right,lastRect.top);

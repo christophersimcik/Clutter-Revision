@@ -11,6 +11,13 @@ import androidx.room.Update;
 
 @Dao
 public interface DaoNote {
+
+    @Query("SELECT * FROM PojoNote WHERE note_image LIKE '%' || :query || '%' OR note_content LIKE '%' || :query || '%'" )
+    LiveData<List<PojoNote>> searchAll (String query);
+
+    @Query("SELECT * FROM PojoNote WHERE note_content LIKE '%' || :keyword || '%'")
+    LiveData<List<PojoNote>> searchKeyword(String keyword);
+
     @Query("SELECT * FROM PojoNote WHERE note_type = :type")
     LiveData<List<PojoNote>> getType(String type);
 
@@ -20,7 +27,7 @@ public interface DaoNote {
     @Query("SELECT * FROM PojoNote WHERE note_id = :noteID ")
     LiveData<PojoNote> getNote(String noteID);
 
-    @Query("SELECT * FROM PojoNote")
+    @Query("SELECT * FROM Pojonote")
     LiveData<List<PojoNote>> getAllNotes();
 
     @Insert

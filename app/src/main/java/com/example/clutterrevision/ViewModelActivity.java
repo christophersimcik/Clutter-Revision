@@ -7,6 +7,7 @@ import android.os.Bundle;
 
 import net.danlew.android.joda.JodaTimeAndroid;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -18,9 +19,9 @@ import androidx.lifecycle.MutableLiveData;
 
 public class ViewModelActivity extends AndroidViewModel implements ObserverDates{
 
-    DayHelper dayHelper;
     Fragment savedFragment;
     PojoDay pojoDay;
+    PojoDay today;
     private int myPosition;
     private String currentDay;
     private FragmentManager fragmentManager;
@@ -30,7 +31,6 @@ public class ViewModelActivity extends AndroidViewModel implements ObserverDates
 
     public ViewModelActivity(@NonNull Application application) {
         super(application);
-        dayHelper = DayHelper.getInstance();
         repositoryDay.register(this);
         context = application.getApplicationContext();
         myPosition = initPosition();
@@ -69,24 +69,35 @@ public class ViewModelActivity extends AndroidViewModel implements ObserverDates
      }
 
      private void retrieveTodaysDate(){
-        repositoryDay.checkForDay(dayHelper.getDateAsString());
+        repositoryDay.checkForDay(DayHelper.getInstance().getDateAsString());
      }
 
      private void createTodaysDate() {
-         String dayID = dayHelper.getDateAsString();
-         String dayOfWeek = dayHelper.getDayOfWeek();
-         String monthOfYear = dayHelper.getMonthOfYear();
-         String dayOfMonth = dayHelper.getDayOfMonth();
-         String year = dayHelper.getYear();
+         String dayID = DayHelper.getInstance().getDateAsString();
+         String dayOfWeek = DayHelper.getInstance().getDayOfWeek();
+         String monthOfYear = DayHelper.getInstance().getMonthOfYear();
+         String dayOfMonth = DayHelper.getInstance().getDayOfMonth();
+         String year = DayHelper.getInstance().getYear();
          int numberOfNotes = 0;
+         int numberOfNoteNotes = 0;
+         int numberOfAudioNotes = 0;
+         int numberOfReferNotes = 0;
+         int numberOfBookNotes = 0 ;
+         int numberOfListNotes = 0;
          PojoDay pojoDay = new PojoDay(
                  dayID,
                  dayOfWeek,
                  monthOfYear,
                  dayOfMonth,
                  year,
-                 numberOfNotes
+                 numberOfNotes,
+                 numberOfNoteNotes,
+                 numberOfAudioNotes,
+                 numberOfReferNotes,
+                 numberOfBookNotes,
+                 numberOfListNotes
          );
+         today = pojoDay;
          repositoryDay.insert(pojoDay);
      }
 
@@ -124,17 +135,26 @@ public class ViewModelActivity extends AndroidViewModel implements ObserverDates
         }
     }
 
-    public void inititiateFragments(){
+    public void jumpToThisDay(String dayID){
+        List<PojoDay> pojoDays = datesLiveData.getValue();
+        for(int i = 0; i < pojoDays.size(); i ++){
+            if (pojoDays.get(i).getDay_id().equals(dayID)) {
+                setPosition(i);
+            }
+        }
+    }
 
-        if (savedFragment != null) {
-            fragmentManager.beginTransaction().replace(R.id.fragment_main, savedFragment, savedFragment.getTag())
-                    .addToBackStack(savedFragment.getTag())
-                    .commit();
-        } else {
-            FragmentNotes fragmentNotes = getFragmentNotes();
-            fragmentManager.beginTransaction().replace(R.id.fragment_main, fragmentNotes, "notes")
-                    .addToBackStack("notes")
-                    .commit();
+    public void inititiateFragments(){
+        if(fragmentManager.findFragmentById(R.id.fragment_main) == null) {
+            if (savedFragment != null) {
+                fragmentManager.beginTransaction().replace(R.id.fragment_main, savedFragment, savedFragment.getTag())
+                        .commit();
+            } else {
+                FragmentNotes fragmentNotes = getFragmentNotes();
+                fragmentManager.beginTransaction().replace(R.id.fragment_main, fragmentNotes, "notes")
+                        .addToBackStack("notes")
+                        .commit();
+            }
         }
     }
 
@@ -164,7 +184,6 @@ public class ViewModelActivity extends AndroidViewModel implements ObserverDates
     @Override
     public void onDatesRetrieved(List<PojoDay> pojoDays) {
         datesLiveData.postValue(pojoDays);
-        System.out.println("view model activity : dates retrieved");
     }
 
     public void setCurrentDay(String currentDay){
@@ -174,5 +193,10 @@ public class ViewModelActivity extends AndroidViewModel implements ObserverDates
     public String getCurrentDay(){
         return this.currentDay;
     }
+
+    interface datesCallback{
+        public void onDatesLiveDataInitialized();
+    }
+
 
 }

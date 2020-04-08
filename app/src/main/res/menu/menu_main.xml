@@ -1,16 +1,19 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.example.clutterrevision.MainActivity">
-    <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
+
     <item
         android:id="@+id/calendar_settings"
+        android:orderInCategory="100"
+        android:title="Search Calendar"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/search_settings"
         android:orderInCategory="200"
-        android:title="Calendar"
+        android:title="Search"
         app:showAsAction="never"/>
 
 </menu>

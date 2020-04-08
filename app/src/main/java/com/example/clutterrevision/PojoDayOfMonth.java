@@ -21,7 +21,11 @@ public class PojoDayOfMonth {
         return dayOfWeek;
     }
 
-    public void addTypesOfNotes(int type) {
-        typesOfNotes[type]++;
+    public void setTypesOfNotes(int[] typesOfNotes) {
+        this.typesOfNotes = typesOfNotes;
+    }
+
+    public int[] getTypesOfNotes() {
+        return this.typesOfNotes;
     }
 }

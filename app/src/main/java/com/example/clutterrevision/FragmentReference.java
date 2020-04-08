@@ -30,6 +30,7 @@ public class FragmentReference extends Fragment {
     CustomSubmit submit;
     ImageView api;
     MainActivity mainActivity;
+    Boolean canPress = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -81,22 +82,26 @@ public class FragmentReference extends Fragment {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                submit.setBackground(getResources().getDrawable(R.drawable.button_inactive,null));
-                submit.setTextColor(getResources().getColor(R.color.light_gray,null));
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (viewModelReference.pojoNote == null) {
-                            viewModelReference.insert(viewModelReference.createNote());
-                        } else {
-                            viewModelReference.update();
+                if (canPress) {
+                    canPress = true;
+                    submit.setBackground(getResources().getDrawable(R.drawable.button_inactive, null));
+                    submit.setTextColor(getResources().getColor(R.color.light_gray, null));
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (viewModelReference.pojoNote == null) {
+                                viewModelReference.insert(viewModelReference.createNote(), getContext());
+                            } else {
+                                viewModelReference.update();
+                            }
+                            jumpToToday(mainActivity);
+                            fragmentManager.popBackStack();
                         }
-                        jumpToToday(mainActivity);
-                        fragmentManager.popBackStack();
-                    }
-                },125);
+                    }, 125);
+                }
             }
+
         });
 
         api = root.findViewById(R.id.button_submit_api_test);
@@ -199,7 +204,7 @@ public class FragmentReference extends Fragment {
     private void jumpToToday(MainActivity mainActivity){
         ViewModelActivity vma = mainActivity.viewModelActivity;
         vma.setPosition(vma.datesLiveData.getValue().size()-1);
-        vma.setCurrentDay(vma.dayHelper.getDateAsString());
+        vma.setCurrentDay(DayHelper.getInstance().getDateAsString());
     }
 
 }

@@ -1,9 +1,11 @@
 package com.example.clutterrevision;
 
 import android.app.Application;
+import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -39,12 +41,14 @@ public class ViewModelNote extends AndroidViewModel {
         pojoNote = createNote();
     }
 
-    public void insert(PojoNote newNote) {
+    public void insert(PojoNote newNote, Context context) {
         if (newNote.getImage().equals("")) {
             newNote.setImage("No Title");
         }
         if (!newNote.getContent().equals("")) {
             repositoryNotes.insert(newNote);
+        }else{
+            noteRejectedWarning(context);
         }
     }
 
@@ -95,14 +99,6 @@ public class ViewModelNote extends AndroidViewModel {
         return this.pojoDay;
     }
 
-    public void updateDay() {
-        if (this.pojoDay != null) {
-            int updatedCount = pojoDay.getNumberOfNotes() + 1;
-            this.pojoDay.setNumberOfNotes(updatedCount);
-            repositoryDay.update(this.pojoDay);
-        }
-    }
-
     public TextWatcher createTitleWatcher() {
         return new TextWatcher() {
             @Override
@@ -122,6 +118,15 @@ public class ViewModelNote extends AndroidViewModel {
         };
     }
 
+    public String parseDate(){
+        String date = pojoNote.getNote_day();
+        String[] dateArray = new String[3];
+        dateArray[0] = Constants.monthsOfYear.get(Integer.parseInt(date.substring(0,2)));
+        dateArray[1] = date.substring(2,4);
+        dateArray[2] = date.substring(4,8);
+        return "Date: " + dateArray[0]+" "+dateArray[1]+", "+dateArray[2];
+    }
+
     public void unBundler(Bundle bundle) {
         if (bundle != null) {
             if (bundle.containsKey("id")) {
@@ -138,5 +143,9 @@ public class ViewModelNote extends AndroidViewModel {
             }
         }
 
+    }
+
+    private void noteRejectedWarning(Context context){
+        Toast.makeText(context,"No Content - Deleted",Toast.LENGTH_SHORT).show();
     }
 }

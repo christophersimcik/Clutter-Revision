@@ -1,11 +1,14 @@
 package com.example.clutterrevision;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
@@ -13,6 +16,7 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
+import android.view.Display;
 import android.view.View;
 
 import com.example.clutterrevision.ObserverAudioImage;
@@ -39,17 +43,15 @@ public class VisualAudio extends View implements ObserverAudioImage {
     float bottomTxtPadding = 0f;
     float span;
 
-    RectF[] rects;
+    private Boolean cancelAnimate = false;
+
+    Rect[] rects;
     Path path;
-    RectF pathBounds = new RectF();
-    List<RectF> animateRects = new ArrayList<>();
+    Rect pathBounds = new Rect();
+    List<Rect> animateRects = new ArrayList<>();
     List<Integer> list;
     String time = "";
     int gray = this.getResources().getColor(android.R.color.tab_indicator_text, null);
-    int orange = getResources().getColor(R.color.audio_orange, null);
-    int transparent = Color.TRANSPARENT;
-    public float[] pos;
-    int[] colorsAnimate = new int[]{getResources().getColor(R.color.audio_orange, null), Color.TRANSPARENT};
     int w = 0, h = 0, cWidth = 0, cHeight = 0;
 
     Paint outlinePaint = new Paint();
@@ -89,7 +91,7 @@ public class VisualAudio extends View implements ObserverAudioImage {
         super.draw(canvas);
 
         if (!animateRects.isEmpty()) {
-            for (RectF r : animateRects) {
+            for (Rect r : animateRects) {
                 float x = r.left + (r.width() / 2);
                 fillPaint.setStyle(Paint.Style.FILL);
                 canvas.drawRect(r, fillPaint);
@@ -123,9 +125,9 @@ public class VisualAudio extends View implements ObserverAudioImage {
         c.drawText(time, w - (txtWidth + rightTxtPadding), h - (txtHeight + bottomTxtPadding) / 4, txtPaint);
     }
 
-    private RectF[] drawRects() {
+    private Rect[] drawRects() {
 
-        this.rects = new RectF[list.size() / 2];
+        this.rects = new Rect[list.size() / 2];
         this.span = ((float) w / (((float) (list.size()) / 2)));
         this.span = ((float) w / (float) rects.length);
         float left = 0, right = span;
@@ -136,7 +138,7 @@ public class VisualAudio extends View implements ObserverAudioImage {
             bot = 2 * (remap(list.get(i + 1)));
             if (top < 0) top = 0;
             if (bot > h) bot = h;
-            rects[i / 2] = new RectF(left, top, right, bot);
+            rects[i / 2] = new Rect((int) left, (int) top, (int) right, (int) bot);
             left = right;
             right += span;
         }
@@ -149,7 +151,8 @@ public class VisualAudio extends View implements ObserverAudioImage {
             this.time = time;
             this.rects = drawRects();
             path = new WaveFormContour(rects).pathFinder();
-            path.computeBounds(pathBounds, false);
+            RectF rf = new RectF(pathBounds.left, pathBounds.top, pathBounds.right, pathBounds.bottom);
+            path.computeBounds(rf, false);
             this.invalidate();
         }
     }
@@ -168,7 +171,6 @@ public class VisualAudio extends View implements ObserverAudioImage {
     public void playback(int dur) {
         final long increment = dur / rects.length;
         final Handler handler = new Handler(Looper.getMainLooper());
-
         final Runnable runnable = new Runnable() {
             int counter = 0;
 
@@ -177,14 +179,21 @@ public class VisualAudio extends View implements ObserverAudioImage {
                 if (animateRects.size() < rects.length) {
                     animateRects.add(rects[counter]);
                     counter++;
-                    handler.postDelayed(this, increment);
-                    invalidate();
-                    System.out.println("animate rects size = " + animateRects.size());
+                    if (!getCancelAnimate()) {
+                        handler.postDelayed(this, increment);
+                        invalidate();
+                    } else {
+                        animateRects.clear();
+                        invalidate();
+                        setCancelAnimate(false);
+                    }
                 } else {
                     animateRects.clear();
                     invalidate();
+                    setCancelAnimate(false);
                 }
             }
+
         };
         handler.post(runnable);
     }
@@ -201,6 +210,7 @@ public class VisualAudio extends View implements ObserverAudioImage {
         ;
         fillPaint.setStyle(Paint.Style.FILL);
         fillPaint.setColor(getResources().getColor(R.color.audio_orange, null));
+        fillPaint.setAlpha(125);
         // set time paint
         txtPaint.setColor(gray);
         txtPaint.setAntiAlias(true);
@@ -209,5 +219,65 @@ public class VisualAudio extends View implements ObserverAudioImage {
     @Override
     public void onImageDataRetrieved(String time, List<Integer> list) {
         updateView(time, list);
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+
+        Display d = findActivity().getWindowManager().getDefaultDisplay();
+        Point p = new Point();
+        d.getSize(p);
+        int w = p.x;
+        int h = p.y;
+        int dSize = Math.min(w, h);
+        dSize = (int) (dSize * .75);
+        int mSpec = Math.min(widthMeasureSpec, heightMeasureSpec);
+        dSize = resolveSize(dSize, mSpec);
+        dSize = measureDimension(dSize, mSpec);
+        setMeasuredDimension(dSize, heightMeasureSpec);
+
+    }
+
+    private int measureDimension(int dynamicSize, int measureSpec) {
+
+        int result;
+        int specMode = MeasureSpec.getMode(measureSpec);
+        int specSize = MeasureSpec.getSize(measureSpec);
+
+        if (specMode == MeasureSpec.EXACTLY) {
+            result = specSize;
+        } else {
+            if (specMode == MeasureSpec.AT_MOST) {
+                result = Math.min(dynamicSize, specSize);
+            } else {
+                result = dynamicSize;
+            }
+        }
+        return result;
+    }
+
+    private Activity findActivity() {
+        Context c = this.getContext();
+        while (c instanceof ContextWrapper) {
+            if (c instanceof Activity) {
+                return (Activity) c;
+            }
+            c = ((ContextWrapper) c).getBaseContext();
+        }
+        return null;
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+
+        super.onDraw(canvas);
+    }
+
+    public void setCancelAnimate(Boolean bool) {
+        this.cancelAnimate = bool;
+    }
+
+    public Boolean getCancelAnimate() {
+        return this.cancelAnimate;
     }
 }

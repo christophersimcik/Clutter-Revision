@@ -7,10 +7,10 @@ public class Constants {
 
     public static final String DATABASE_NAME = "database";
 
-    public static final String TABLE_NAME_CHECKLIST = "checklistTable";
-    public static final String TABLE_NAME_NOTE = "noteTable";
-    public static final String TABLE_NAME_DAY = "dayTable";
     public static final String SP_DAYS = "datePreferences";
+
+    public static final String SEARCH_TYPE = "search type";
+    public static final String SEARCH_QUERY = "search query";
 
     public static final int TYPE_NOTE = 0;
     public static final int TYPE_REFERENCE = 1;
@@ -18,6 +18,20 @@ public class Constants {
     public static final int TYPE_CHECKLIST = 3;
     public static final int TYPE_GOOGLE_BOOKS = 4;
     public static final int MY_PERMISSIONS_REQUESTS = 0;
+
+    public static final int SEARCH_ALL = 0;
+    public static final int SEARCH_TITLE = 1;
+    public static final int SEARCH_KEYWORD = 2;
+
+    public static final Map<Integer,String> types;
+
+    static{
+        types = new HashMap<>();
+        types.put(0,"All");
+        types.put(1, "Titles");
+        types.put(2,"Keywords");
+    }
+
 
 
     public static final Map<Integer, String> daysOfWeek;

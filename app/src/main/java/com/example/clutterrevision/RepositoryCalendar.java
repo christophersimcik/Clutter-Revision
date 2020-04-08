@@ -16,20 +16,26 @@ public class RepositoryCalendar {
         repositoryDay = new RepositoryDay(application);
     }
 
+    public void reset(){
+        year = dayHelper.getYearAsInt();
+        month = dayHelper.getMonthAsInt();
+        pojoMonth = dayHelper.getCalendarMonth(year, month);
+    }
+
     public PojoMonth nextMonth(Boolean left){
         if(left){
-            if(month == 1){
-                month = 12;
-                year --;
-            }else{
-                month--;
-            }
-        }else{
             if(month == 12){
                 month = 1;
                 year ++;
             }else{
                 month++;
+            }
+        }else{
+            if(month == 1){
+                month = 12;
+                year --;
+            }else{
+                month--;
             }
         }
         pojoMonth = dayHelper.getCalendarMonth(year, month);
@@ -38,7 +44,9 @@ public class RepositoryCalendar {
 
     public void CheckDays(){
         for(PojoDayOfMonth pojoDayOfMonth : pojoMonth.getDaysOfMonth()){
-            repositoryDay.checkForDay(pojoDayOfMonth.dayAsString);
+            if(pojoDayOfMonth != null) {
+                repositoryDay.checkForDay(pojoDayOfMonth.dayAsString);
+            }
         }
     }
 

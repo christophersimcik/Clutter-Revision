@@ -24,8 +24,8 @@ public class RepositoryGoogleBooksAPI extends LiveData<List<PojoBook>> {
     String addendum = "+subject&maxResults=40";
     List<PojoBook> pojoBooks = new ArrayList<>();
     EmptyListReturned emptyListReturned;
+    AsyncTask asyncTask;
     public RepositoryGoogleBooksAPI(String query) {
-        this.emptyListReturned = emptyListReturned;
         getData(query);
     }
 
@@ -35,18 +35,17 @@ public class RepositoryGoogleBooksAPI extends LiveData<List<PojoBook>> {
 
 
     public void getData(final String query) {
-        new AsyncTask<Void,Void, List<PojoBook>>() {
 
-
-           @Override
-            protected List<PojoBook> doInBackground(Void... voids) {
+        asyncTask = new AsyncTask<String,Void,List<PojoBook>>() {
+            @Override
+            protected List<PojoBook> doInBackground(String... strings) {
                 URL url = null;
                 BufferedReader bufferedReader;
                 HttpURLConnection connection = null;
                 StringBuilder stringBuilder = new StringBuilder();
                 String line;
                 try {
-                    url = new URL(base + query + addendum);
+                    url = new URL(base + strings[0] + addendum);
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 }
@@ -79,7 +78,12 @@ public class RepositoryGoogleBooksAPI extends LiveData<List<PojoBook>> {
                 }
                 super.onPostExecute(list);
             }
-        }.execute();
+
+            @Override
+            protected void onCancelled() {
+                super.onCancelled();
+            }
+        }.execute(query);
     }
 
     private List<PojoBook> makeBooks(String jsonString) {

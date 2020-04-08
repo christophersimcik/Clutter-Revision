@@ -26,9 +26,11 @@ public class ViewModelAudio extends AndroidViewModel implements ObserverNote {
     LiveData<File> fileImage;
     LiveData<File> fileContent;
     RepositoryNotes repositoryNote;
+    RepositoryDay repositoryDay;
     DayHelper dayHelper = DayHelper.getInstance();
     String trialList;
     String triaLString;
+    private PojoDay pojoDay;
 
     public ViewModelAudio(@NonNull Application application) {
         super(application);
@@ -38,6 +40,7 @@ public class ViewModelAudio extends AndroidViewModel implements ObserverNote {
         audioRecordHelper = new AudioRecordHelper(fileHelper);
         repositoryNote = new RepositoryNotes(application);
         repositoryNote.register(this);
+        repositoryDay = new RepositoryDay(application);
         values = audioRecordHelper;
         time = timer;
         fileImage = fileAudioImage;
@@ -53,7 +56,6 @@ public class ViewModelAudio extends AndroidViewModel implements ObserverNote {
     }
     public void getData(){
         fileAudioImage.inputAudioImageData(fileAudioImage.audioImageFile.getAbsolutePath());
-       // trialList = fileAudioImage.data;
         trialList = fileAudioImage.audioImageFile.getAbsolutePath();
         triaLString = fileAudioImage.time;
     }
@@ -98,12 +100,10 @@ public class ViewModelAudio extends AndroidViewModel implements ObserverNote {
     public void insert(PojoNote pojoNote){
         repositoryNote.insert(pojoNote);
     }
-
-    private void getNote(Bundle bundle){
-        String id = "";
-        id = bundle.getString("id");
-        repositoryNote.getThisNote(id);
+    public void setPojoDay(PojoDay pojoDay) {
+        this.pojoDay = pojoDay;
     }
+
     @Override
     public void onNoteRetrieved(PojoNote pojoNote) {
         this.note = pojoNote;
@@ -111,12 +111,10 @@ public class ViewModelAudio extends AndroidViewModel implements ObserverNote {
 
     @Override
     public void onNoteInserted() {
-
     }
 
     @Override
     public void onNoteUpdated() {
-
     }
 
     public PojoNote createNote(){

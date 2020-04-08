@@ -3,6 +3,7 @@ package com.example.clutterrevision;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,9 +19,8 @@ import androidx.fragment.app.DialogFragment;
 public class DialogCheckList extends DialogFragment {
     ChecklistDialogListener listener;
     EmojiEditText emojiEditText;
-    public DialogCheckList(){
+    public DialogCheckList(){}
 
-    }
   @Override
   public Dialog onCreateDialog(Bundle savedInstanceState){
       AlertDialog dialog;
@@ -29,13 +29,14 @@ public class DialogCheckList extends DialogFragment {
       View dialogLayout = layoutInflater.inflate(R.layout.alert_dialog_checklist, null);
       builder.setView(dialogLayout);
       dialog = builder.create();
+
       // handle sizes
       initViews(dialogLayout);
 
       return dialog;
   }
 
-  @Override
+    @Override
   public void onAttach(Context context) {
       super.onAttach(context);
       try {

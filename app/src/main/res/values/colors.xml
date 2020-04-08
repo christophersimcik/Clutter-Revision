@@ -7,5 +7,12 @@
     <color name="audio_orange">@android:color/holo_orange_light</color>
     <color name="white_80pct">#CCFFFFFF</color>
     <color name="white_50pct">#80FFFFFF</color>
+    <color name="default_white">#FAFAFA </color>
     <color name="light_gray">#D8D8D8</color>
+    <color name="note">@android:color/holo_red_dark</color>
+    <color name="accent_red">@android:color/holo_red_light</color>
+    <color name="audio">@android:color/holo_orange_light</color>
+    <color name="reference">@android:color/holo_blue_light</color>
+    <color name="list">@android:color/holo_green_dark</color>
+    <color name="primary">#AAA88E</color>
 </resources>

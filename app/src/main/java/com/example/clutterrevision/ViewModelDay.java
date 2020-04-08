@@ -3,6 +3,9 @@ package com.example.clutterrevision;
 import android.app.Application;
 import android.content.Context;
 
+import net.danlew.android.joda.JodaTimeAndroid;
+
+import java.util.Collections;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -13,14 +16,13 @@ import androidx.lifecycle.MutableLiveData;
 
 public class ViewModelDay extends AndroidViewModel implements ObserverNotes, ObserverDates {
 
-    DayHelper dayHelper;
     LiveData<List<PojoDay>> listOfDays;
     RepositoryDay repositoryDay;
     RepositoryNotes repositoryNote;
     MutableLiveData<List<PojoNote>> listOfNotes;
     public FragmentManager fragmentManager;
-    String dayID, dayOfWeek, monthOfYear, dayOfMonth, year;
     String currentDay;
+    ViewModelActivity viewModelActivity;
 
     private PojoDay pojoDay;
 
@@ -29,22 +31,16 @@ public class ViewModelDay extends AndroidViewModel implements ObserverNotes, Obs
         this.repositoryDay = new RepositoryDay(application);
         repositoryDay.register(this);
         this.repositoryNote = new RepositoryNotes(application);
-        this.repositoryNote.register(this);
-        this.dayHelper = DayHelper.getInstance();
-        this.dayID = dayHelper.getDateAsString();
-        this.dayOfWeek = dayHelper.getDayOfWeek();
-        this.monthOfYear = dayHelper.getMonthOfYear();
-        this.dayOfMonth = dayHelper.getDayOfMonth();
-        this.year = dayHelper.getYear();
+        repositoryNote.register(this);
         this.listOfNotes = new MutableLiveData<>();
+        this.listOfDays = repositoryDay.getAllDaysAsLiveData();
     }
 
     public void refreshNotes() {
         if( currentDay == null || currentDay.isEmpty()) {
-        currentDay = dayHelper.getDateAsString();
+        currentDay = getDayId();
         }
         getDaysNotes(currentDay);
-
     }
 
     public void getDaysNotes(String day) {
@@ -55,17 +51,15 @@ public class ViewModelDay extends AndroidViewModel implements ObserverNotes, Obs
         repositoryNote.insert(pojoNote);
     }
 
-
     @Override
     public void onDayRetrieved(List<PojoNote> pojoNotes) {
         listOfNotes.postValue(pojoNotes);
-
     }
 
     public void getAudioImage(String s, VisualAudio view) {
         RepositoryAudioImageData fileAudioImage = new RepositoryAudioImageData();
-        fileAudioImage.inputAudioImageData(s);
         fileAudioImage.register(view);
+        fileAudioImage.inputAudioImageData(s);
     }
 
     public void setPojoDay(PojoDay pojoDay) {
@@ -74,6 +68,10 @@ public class ViewModelDay extends AndroidViewModel implements ObserverNotes, Obs
 
     public PojoDay getPojoDay() {
         return this.pojoDay;
+    }
+
+    public void setViewModelActivity(ViewModelActivity viewModelActivity) {
+        this.viewModelActivity = viewModelActivity;
     }
 
     @Override
@@ -88,11 +86,13 @@ public class ViewModelDay extends AndroidViewModel implements ObserverNotes, Obs
 
     @Override
     public void onDateInserted() {
-
     }
 
     @Override
     public void onDatesRetrieved(List<PojoDay> pojoDays) {
     }
 
+    public String getDayId(){
+        return DayHelper.getInstance().getDateAsString();
+     }
 }

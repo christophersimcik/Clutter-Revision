@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class FragmentBooks extends Fragment implements RepositoryGoogleBooksAPI.EmptyListReturned {
+
     FragmentManager fragmentManager;
     ViewModelBook viewModelBook;
     RecyclerView recyclerView;
@@ -41,19 +42,20 @@ public class FragmentBooks extends Fragment implements RepositoryGoogleBooksAPI.
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.setRetainInstance(true);
+        setRetainInstance(true);
         fragmentManager = getActivity().getSupportFragmentManager();
         activity = this.getActivity();
-        fragmentManager = getActivity().getSupportFragmentManager();
         viewModelBook = ViewModelProviders.of(this).get(ViewModelBook.class);
         viewModelBook.getData(getArguments());
         viewModelBook.registerEmptyCallback(this);
         adapterBooks = new AdapterBooks(this.getContext(),viewModelBook);
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
+        System.out.println("this book frag = " + fragmentManager.findFragmentById(R.id.fragment_main));
         ViewDataBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_book, container, false);
         viewGroup = container;
         View root = binding.getRoot();
@@ -77,7 +79,6 @@ public class FragmentBooks extends Fragment implements RepositoryGoogleBooksAPI.
         observerBooks = new Observer<List<PojoBook>>() {
             @Override
             public void onChanged(List<PojoBook> pojoBooks) {
-                System.out.println("size of pojoBooks = " + pojoBooks);
                 animationProgress.stop();
                 viewGroup.removeView(progressBar);
                 adapterBooks.setData(pojoBooks);

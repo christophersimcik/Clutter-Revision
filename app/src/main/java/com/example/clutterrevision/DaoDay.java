@@ -11,11 +11,53 @@ import androidx.room.Update;
 
 @Dao
 public interface DaoDay {
+    // additions:
+    @Query("UPDATE PojoDay SET number_of_notes= number_of_notes + 1, number_of_note_notes = number_of_note_notes + 1 WHERE day_id = :id")
+    void addNote(String id);
+
+    @Query("UPDATE PojoDay SET number_of_notes= number_of_notes + 1, number_of_ref_notes = number_of_ref_notes + 1 WHERE day_id = :id")
+    void addReference(String id);
+
+    @Query("UPDATE PojoDay SET number_of_notes= number_of_notes + 1, number_of_book_notes = number_of_book_notes + 1 WHERE day_id = :id")
+    void addBook(String id);
+
+    @Query("UPDATE PojoDay SET number_of_notes= number_of_notes + 1, number_of_audio_notes = number_of_audio_notes + 1 WHERE day_id = :id")
+    void addAudio(String id);
+
+    @Query("UPDATE PojoDay SET number_of_notes= number_of_notes + 1, number_of_list_notes = number_of_list_notes + 1 WHERE day_id = :id")
+    void addList(String id);
+
+    // deletions:
+    @Query("UPDATE PojoDay SET number_of_notes= number_of_notes - 1, number_of_note_notes = number_of_note_notes - 1 WHERE day_id = :id")
+    void deleteNote(String id);
+
+    @Query("UPDATE PojoDay SET number_of_notes= number_of_notes - 1, number_of_ref_notes = number_of_ref_notes - 1 WHERE day_id = :id")
+    void deleteReference(String id);
+
+    @Query("UPDATE PojoDay SET number_of_notes= number_of_notes - 1, number_of_book_notes = number_of_book_notes - 1 WHERE day_id = :id")
+    void deleteBook(String id);
+
+    @Query("UPDATE PojoDay SET number_of_notes= number_of_notes - 1, number_of_audio_notes = number_of_audio_notes - 1 WHERE day_id = :id")
+    void deleteAudio(String id);
+
+    @Query("UPDATE PojoDay SET number_of_notes= number_of_notes - 1, number_of_list_notes = number_of_list_notes - 1 WHERE day_id = :id")
+    void deleteList(String id);
+
+
+
+
+
     @Query("SELECT * FROM PojoDay WHERE day_id = :day")
     PojoDay getThisDay(String day);
 
+    @Query("SELECT * FROM PojoDay WHERE day_id = :day")
+    PojoDay getQuanity(String day);
+
     @Query("SELECT * FROM PojoDay")
     List<PojoDay> getAllDays();
+
+    @Query("SELECT * FROM PojoDay")
+    LiveData<List<PojoDay>> getAllDaysAsLiveData();
 
     @Insert
     void insert(PojoDay pojoDay);
