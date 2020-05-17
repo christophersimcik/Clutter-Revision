@@ -12,6 +12,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
@@ -51,6 +52,7 @@ public class VisualAudio extends View implements ObserverAudioImage {
     List<Rect> animateRects = new ArrayList<>();
     List<Integer> list;
     String time = "";
+    String timeRunning = "";
     int gray = this.getResources().getColor(android.R.color.tab_indicator_text, null);
     int w = 0, h = 0, cWidth = 0, cHeight = 0;
 
@@ -95,14 +97,15 @@ public class VisualAudio extends View implements ObserverAudioImage {
                 float x = r.left + (r.width() / 2);
                 fillPaint.setStyle(Paint.Style.FILL);
                 canvas.drawRect(r, fillPaint);
+                drawTextRunning(canvas);
+
             }
         } else {
             if (path != null) {
                 canvas.drawPath(path, outlinePaint);
+                drawText(canvas);
             }
         }
-        drawText(canvas);
-
     }
 
     public float findTextSz() {
@@ -110,6 +113,7 @@ public class VisualAudio extends View implements ObserverAudioImage {
         float textSz = 0f;
         float targetSz = w / 4;
         Rect rect = new Rect();
+
         while (txtWidth < targetSz) {
             txtPaint.setTextSize(textSz);
             txtPaint.getTextBounds(s, 0, s.length(), rect);
@@ -117,12 +121,16 @@ public class VisualAudio extends View implements ObserverAudioImage {
             txtHeight = rect.height();
             textSz++;
         }
+
         return textSz;
 
     }
 
     private void drawText(Canvas c) {
         c.drawText(time, w - (txtWidth + rightTxtPadding), h - (txtHeight + bottomTxtPadding) / 4, txtPaint);
+    }
+    private void drawTextRunning(Canvas c) {
+        c.drawText(timeRunning, w - (txtWidth + rightTxtPadding), h - (txtHeight + bottomTxtPadding) / 4, txtPaint);
     }
 
     private Rect[] drawRects() {
@@ -168,7 +176,7 @@ public class VisualAudio extends View implements ObserverAudioImage {
         return f;
     }
 
-    public void playback(int dur) {
+    public void playback(int dur, final MediaPlayer mediaPlayer) {
         final long increment = dur / rects.length;
         final Handler handler = new Handler(Looper.getMainLooper());
         final Runnable runnable = new Runnable() {
@@ -182,9 +190,14 @@ public class VisualAudio extends View implements ObserverAudioImage {
                     if (!getCancelAnimate()) {
                         handler.postDelayed(this, increment);
                         invalidate();
+                        timeRunning = "";
+                        if(mediaPlayer.isPlaying()) {
+                            timeRunning = convertToString(mediaPlayer.getCurrentPosition());
+                        }
                     } else {
                         animateRects.clear();
                         invalidate();
+                        timeRunning = "";
                         setCancelAnimate(false);
                     }
                 } else {
@@ -209,7 +222,7 @@ public class VisualAudio extends View implements ObserverAudioImage {
         fillPaint.setAntiAlias(true);
         ;
         fillPaint.setStyle(Paint.Style.FILL);
-        fillPaint.setColor(getResources().getColor(R.color.audio_orange, null));
+        fillPaint.setColor(getResources().getColor(R.color.new_yellow, null));
         fillPaint.setAlpha(125);
         // set time paint
         txtPaint.setColor(gray);
@@ -279,5 +292,40 @@ public class VisualAudio extends View implements ObserverAudioImage {
 
     public Boolean getCancelAnimate() {
         return this.cancelAnimate;
+    }
+
+    private String convertToString(long m) {
+        long hundreths = Math.round(m % 100);
+        long seconds = Math.round((m / 1000) % 60);
+        long minutes = Math.round((m / (1000 * 60)) % 60);
+        long hours = Math.round((m / (1000 * 60 * 60)) % 24);
+
+        String huns, secs, mins, hrs;
+
+        if (hundreths < 10) {
+            huns = "0" + hundreths;
+        } else {
+            huns = String.valueOf(hundreths);
+        }
+
+        if (seconds < 10) {
+            secs = "0" + seconds;
+        } else {
+            secs = String.valueOf(seconds);
+        }
+
+        if (minutes < 10) {
+            mins = "0" + minutes;
+        } else {
+            mins = String.valueOf(minutes);
+        }
+
+        if (hours < 10) {
+            hrs = "0" + hours;
+        } else {
+            hrs = String.valueOf(hours);
+        }
+
+        return hrs + "." + mins + "." + secs + "." + huns;
     }
 }

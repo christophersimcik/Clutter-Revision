@@ -19,15 +19,15 @@
             android:layout_height="?attr/actionBarSize"
             android:layout_margin="10dp"
             android:background="@color/default_text"
-            app:titleTextAppearance="@style/Toolbar.TitleText"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            app:popupTheme="@style/AppTheme.PopupOverlay"
+            app:titleTextAppearance="@style/Toolbar.TitleText" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <LinearLayout
+        android:id="@+id/main_activity_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="10dp"
-        android:id="@+id/main_activity_layout"
         android:orientation="vertical">
 
         <FrameLayout
@@ -39,7 +39,7 @@
         <FrameLayout
             android:id="@+id/fragment_main"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
         </FrameLayout>
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

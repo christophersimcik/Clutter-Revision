@@ -1,15 +1,20 @@
 package com.example.clutterrevision;
 
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.PipedOutputStream;
@@ -17,6 +22,7 @@ import java.util.List;
 
 import androidx.databinding.DataBindingUtil;
 import androidx.databinding.ViewDataBinding;
+import androidx.emoji.widget.EmojiEditText;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Observer;
@@ -35,6 +41,10 @@ public class FragmentNote extends Fragment {
     TextWatcher titleWatcher;
     TextView dateText;
     Boolean canPress = true;
+    LinearLayout topLayout;
+    LinearLayout bottomLayout;
+    int oldHeight;
+    ViewTreeObserver viewTreeObserver;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,9 +62,11 @@ public class FragmentNote extends Fragment {
         mainActivity = (MainActivity) getActivity();
         viewModelNote.setPojoDay(mainActivity.viewModelActivity.pojoDay);
         ViewDataBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_note, container, false);
-        View root = binding.getRoot();
+        final View root = binding.getRoot();
+        topLayout = root.findViewById(R.id.note_top_layout);
+        bottomLayout = root.findViewById(R.id.note_bottom_layout);
         dateText = root.findViewById(R.id.date_id_text);
-        dateText.setText(viewModelNote.parseDate());
+        dateText.setText(viewModelNote.parseDate(null));
         body = root.findViewById(R.id.body_note);
         body.addTextChangedListener(new TextWatcher() {
             @Override
@@ -88,33 +100,31 @@ public class FragmentNote extends Fragment {
         });
 
         submit = root.findViewById(R.id.button_submit_note);
-        submit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
-                if (canPress) {
-                    canPress = false;
-                    submit.setTextColor(getResources().getColor(R.color.light_gray, null));
-                    submit.setBackground(getResources().getDrawable(R.drawable.button_inactive, null));
-                    Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (viewModelNote.newNote) {
-                                    viewModelNote.insert(viewModelNote.pojoNote, getContext());
-                            } else {
-                                viewModelNote.update();
-                            }
-                            jumpToToday(mainActivity);
-                            fragmentManager.popBackStack();
-                        }
-                    }, 250);
-                }
-            }
+        applyListener();
 
-        });
 
         initObservers();
         registerObservers();
+
+        root.post(new Runnable() {
+            @Override
+            public void run() {
+                Rect rect = new Rect();
+                root.getWindowVisibleDisplayFrame(rect);
+                oldHeight = rect.height();
+            }
+        });
+
+        viewTreeObserver = root.getViewTreeObserver();
+
+        viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                Rect rect = new Rect();
+                root.getWindowVisibleDisplayFrame(rect);
+                checkKeyboard(rect.height(), root);
+            }
+        });
         return root;
     }
 
@@ -134,6 +144,7 @@ public class FragmentNote extends Fragment {
                 viewModelNote.pojoNote = pojoNote;
                 body.setText(pojoNote.getContent());
                 title.setText(pojoNote.getImage());
+                dateText.setText(viewModelNote.parseDate(pojoNote.getNote_day()));
             }
         };
     }
@@ -150,6 +161,52 @@ public class FragmentNote extends Fragment {
         vma.setPosition(vma.datesLiveData.getValue().size() - 1);
         vma.setCurrentDay(DayHelper.getInstance().getDateAsString());
     }
+
+    private void checkKeyboard(int newHeight,View view){
+        ViewGroup viewGroup;
+        if(oldHeight - newHeight > 700){
+            viewGroup = (ViewGroup) submit.getParent();
+            viewGroup.removeView(submit);
+            viewGroup = topLayout;
+            viewGroup.addView(submit);
+            applyListener();
+
+        }else{
+            viewGroup = (ViewGroup) submit.getParent();
+            viewGroup.removeView(submit);
+            viewGroup = bottomLayout;
+            viewGroup.addView(submit);
+        }
+    }
+
+    private void applyListener() {
+        submit.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (canPress) {
+                    canPress = false;
+                    submit.setTextColor(getResources().getColor(R.color.light_gray, null));
+                    submit.setBackground(getResources().getDrawable(R.drawable.button_inactive, null));
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (viewModelNote.newNote) {
+                                viewModelNote.insert(viewModelNote.pojoNote, getContext());
+                            } else {
+                                viewModelNote.update();
+                            }
+                            jumpToToday(mainActivity);
+                            fragmentManager.popBackStack();
+                        }
+                    }, 250);
+                }
+                return false;
+            }
+
+        });
+    }
+
 
 
 

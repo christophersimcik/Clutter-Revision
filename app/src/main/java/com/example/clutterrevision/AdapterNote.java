@@ -39,6 +39,7 @@ public class AdapterNote extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     ViewModelDay viewModelDay;
     ViewModelSearch viewModelSearch;
     FragmentManager fragmentManager;
+    FragmentNotes fragmentNotes;
     List<MediaPlayer> mediaPlayers = new ArrayList();
     RecyclerView recyclerView;
 
@@ -55,6 +56,9 @@ public class AdapterNote extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         this.context = context;
         this.viewModelDay = viewModelDay;
         this.fragmentManager = fragmentManager;
+        if(fragmentManager.findFragmentById(R.id.fragment_main) instanceof FragmentNotes){
+            fragmentNotes = (FragmentNotes) fragmentManager.findFragmentById(R.id.fragment_main);
+        }
         dialogDelete = new DialogDelete();
         dialogDelete.setTargetFragment(fragmentManager.findFragmentByTag("notes"), 0);
         dialogDelete.getDialog();
@@ -111,6 +115,9 @@ public class AdapterNote extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                     viewModelDay.getAudioImage(data.get(position).getImage(), viewHolderAudio.visualAudio);
                 }
                 viewHolderAudio.setPojoNote(data.get(position));
+                if(fragmentNotes != null){
+                    fragmentNotes.registerCancelPlaybacks(viewHolderAudio);
+                }
                 break;
             case Constants.TYPE_CHECKLIST:
                 ViewHolderChecklist viewHolderChecklist = ((ViewHolderChecklist) holder);
@@ -144,11 +151,15 @@ public class AdapterNote extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     @Override
     public void onViewSwiped(int position) {
         noteToDelete = data.get(position);
+        if(fragmentNotes != null){
+            fragmentNotes.notifyCancelPlayback();
+        }
         positionOfDeletion = position;
         dialogDelete.setPosition(position);
         dialogDelete.show(fragmentManager, "delete");
 
     }
+
 
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -224,7 +235,7 @@ public class AdapterNote extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         }
     }
 
-    class ViewHolderAudio extends RecyclerView.ViewHolder {
+    class ViewHolderAudio extends RecyclerView.ViewHolder implements CancelPlayback {
 
         ImageView imageView;
         VisualAudio visualAudio;
@@ -272,7 +283,7 @@ public class AdapterNote extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        visualAudio.playback(mediaPlayer.getDuration());
+                        visualAudio.playback(mediaPlayer.getDuration(),mediaPlayer);
                         mediaPlayer.start();
                         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                             @Override
@@ -299,7 +310,15 @@ public class AdapterNote extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             }
         }
 
-
+        @Override
+        public void cancelPlayback() {
+            if(active) {
+                active = false;
+                visualAudio.setCancelAnimate(true);
+                mediaPlayer.release();
+                mediaPlayers.remove(mediaPlayer);
+            }
+        }
     }
 
     class ViewHolderNote extends RecyclerView.ViewHolder {
@@ -485,4 +504,6 @@ public class AdapterNote extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         dateArray[2] = date.substring(4,8);
         return dateArray[0]+" "+dateArray[1]+", "+dateArray[2];
     }
+
+
 }

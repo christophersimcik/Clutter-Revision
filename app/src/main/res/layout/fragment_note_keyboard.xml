@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+
         <variable
             name="note"
             type="com.example.clutterrevision.PojoNote" />
@@ -16,7 +17,7 @@
 
         <TextView
             android:id="@+id/heading_reference"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:text="Notes"
@@ -32,24 +33,35 @@
             android:orientation="vertical"
             android:paddingStart="10dp"
             android:paddingTop="10dp"
-            android:paddingEnd="10dp">
+            android:paddingEnd="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.35000002">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/note_top_layout"
                 android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/heading_note"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Title:"
-                    android:textColor="@color/default_text"
-                    android:textSize="@dimen/default_input_hint">
-                </TextView>
+            <TextView
+                android:id="@+id/heading_note"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Title:"
+                android:textColor="@color/default_text"
+                android:textSize="@dimen/default_input_hint">
+            </TextView>
 
+            <Button
+                android:id="@+id/button_submit_note"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_gravity="right"
+                android:background="@drawable/button"
+                android:text="Submit"
+                android:textColor="@color/default_text"></Button>
             </LinearLayout>
 
             <androidx.emoji.widget.EmojiEditText
@@ -69,34 +81,15 @@
                 </androidx.emoji.widget.EmojiEditText>
             </com.example.clutterrevision.CustomScrollView>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/note_bottom_layout"
-                android:layout_gravity="bottom"
-                android:layout_margin="10dp"
-                android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/date_id_text"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="left|bottom"
                     android:layout_weight="1"
                     android:textColor="@color/default_text"
                     android:textSize="10sp"></TextView>
-
-                <Button
-                    android:id="@+id/button_submit_note"
-                    android:layout_width="0dp"
-                    android:layout_height="50dp"
-                    android:layout_gravity="right"
-                    android:layout_weight="1"
-                    android:background="@drawable/button"
-                    android:text="Submit"
-                    android:textColor="@color/default_text"></Button>
-
-            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 

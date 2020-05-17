@@ -5,6 +5,13 @@ import java.util.Map;
 
 public class Constants {
 
+
+
+    public static final String audio = "audio";
+    public static final String note = "note";
+    public static final String term = "term";
+    public static final String list = "list";
+
     public static final String DATABASE_NAME = "database";
 
     public static final String SP_DAYS = "datePreferences";

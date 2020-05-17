@@ -15,9 +15,10 @@
             android:layout_alignParentTop="true"
             android:layout_marginTop="10dp"
             android:layout_marginStart="10dp"
-            android:text="GoogleBooks"
+            android:text="Google Book Search"
             android:textColor="@color/default_text"
-            android:textSize="26dp"></TextView>
+            android:textSize="@dimen/title_text_size">
+        </TextView>
 
         <LinearLayout
             android:orientation="horizontal"

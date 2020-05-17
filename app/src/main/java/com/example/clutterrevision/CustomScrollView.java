@@ -2,6 +2,7 @@ package com.example.clutterrevision;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.ViewGroup;
 import android.widget.ScrollView;
 
 public class CustomScrollView extends ScrollView {
@@ -42,4 +43,9 @@ public class CustomScrollView extends ScrollView {
         }
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
+     public void adjustHeight(int newHeight){
+         ViewGroup.LayoutParams layoutParams = getLayoutParams();
+         layoutParams.height = newHeight;
+         this.setLayoutParams(layoutParams);
+     }
 }

@@ -95,4 +95,5 @@ public class ViewModelDay extends AndroidViewModel implements ObserverNotes, Obs
     public String getDayId(){
         return DayHelper.getInstance().getDateAsString();
      }
+
 }

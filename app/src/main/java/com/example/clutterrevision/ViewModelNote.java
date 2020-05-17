@@ -118,8 +118,14 @@ public class ViewModelNote extends AndroidViewModel {
         };
     }
 
-    public String parseDate(){
-        String date = pojoNote.getNote_day();
+    public String parseDate(String day){
+        String date;
+        if(day == null){
+            date = dayHelper.getDateAsString();
+        }else{
+            date = day;
+        }
+
         String[] dateArray = new String[3];
         dateArray[0] = Constants.monthsOfYear.get(Integer.parseInt(date.substring(0,2)));
         dateArray[1] = date.substring(2,4);

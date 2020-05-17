@@ -48,6 +48,13 @@ public class DialogCheckList extends DialogFragment {
 
     public interface ChecklistDialogListener {
         void onSubmit(Dialog dialog);
+        void onCancelled();
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        listener.onCancelled();
+        super.onCancel(dialog);
     }
 
     private Point getDimensions(){

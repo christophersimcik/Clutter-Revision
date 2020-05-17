@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     PermissionsHelper permissionsHelper = new PermissionsHelper();
     Observer observerDates;
     AppBarLayout appBarLayout;
+    Toolbar toolbar;
 
 
     @Override
@@ -42,13 +43,17 @@ public class MainActivity extends AppCompatActivity {
         viewModelActivity.getFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
             public void onBackStackChanged() {
+                if(fragmentManager.findFragmentById(R.id.fragment_main) != null){
+                    changeToolbarColor(fragmentManager.findFragmentById(R.id.fragment_main),toolbar);
+                };
                 viewModelActivity.dayFragmentManager();
+
             }
         });
         initObserver();
         // view model activity dates liver data observe
         viewModelActivity.datesLiveData.observe(this, observerDates);
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         appBarLayout = findViewById(R.id.appbar);
         appBarLayout.setOutlineProvider(null);
         setSupportActionBar(toolbar);
@@ -103,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        String tag = getResources().getString(R.string.note);
         if (fragmentManager.findFragmentById(R.id.fragment_main) instanceof FragmentList) {
             FragmentList fragmentList = (FragmentList) fragmentManager.findFragmentById(R.id.fragment_main);
             if (fragmentList.newList) {
@@ -116,8 +122,8 @@ public class MainActivity extends AppCompatActivity {
         }else{
             if(!(fragmentManager.findFragmentById(R.id.fragment_main) instanceof FragmentNotes )){
                 fragmentManager.beginTransaction()
-                        .replace(R.id.fragment_main,new FragmentNotes(),"notes")
-                        .addToBackStack("notes")
+                        .replace(R.id.fragment_main,new FragmentNotes(),tag)
+                        .addToBackStack(tag)
                         .commit();
             }
         }
@@ -161,6 +167,25 @@ public class MainActivity extends AppCompatActivity {
                 .addToBackStack("search")
                 .commit();
     }
+
+    private void changeToolbarColor(Fragment fragment, Toolbar toolbar){
+        switch(fragment.getTag()){
+            case Constants.note:
+                toolbar.setBackgroundColor(getResources().getColor(R.color.new_red,null));
+                break;
+            case Constants.term:
+                toolbar.setBackgroundColor(getResources().getColor(R.color.new_blue,null));
+                break;
+            case Constants.audio:
+                toolbar.setBackgroundColor(getResources().getColor(R.color.new_yellow,null));
+                break;
+            case Constants.list:
+                toolbar.setBackgroundColor(getResources().getColor(R.color.new_green,null));
+                break;
+            default:
+                toolbar.setBackgroundColor(getResources().getColor(R.color.default_text,null));
+         }
+        }
     }
 
 

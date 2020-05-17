@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.databinding.DataBindingUtil;
@@ -35,8 +36,8 @@ public class FragmentNotes extends Fragment implements DialogCheckList.Checklist
     FragmentManager fragmentManager;
     MainActivity mainActivity;
     ItemTouchCallback itemTouchCallback;
+    List<CancelPlayback> cancelPlaybackList = new ArrayList<>();
     private Boolean canPress;
-
     private DialogCheckList dialogCheckList;
 
 
@@ -69,47 +70,56 @@ public class FragmentNotes extends Fragment implements DialogCheckList.Checklist
         note.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                note.setBackground(getResources().getDrawable(R.drawable.note, null));
-                final AnimationDrawable animateTerm = (AnimationDrawable) note.getDrawable();
-                animateTerm.setOneShot(true);
-                animateTerm.start();
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        animateTerm.stop();
-                        animateTerm.selectDrawable(0);
-                        note.setBackground(getResources().getDrawable(R.drawable.basic, null));
-                        FragmentNote fragmentNote = new FragmentNote();
-                        Bundle bundle = new Bundle();
-                        bundle.putBoolean("new_note", true);
-                        fragmentNote.setArguments(bundle);
-                        fragmentManager.beginTransaction().replace(R.id.fragment_main, fragmentNote, "note")
-                                .addToBackStack("note")
-                                .commit();
-                    }
-                }, 300);
+                if (canPress) {
+                    canPress = false;
+                    note.setBackground(getResources().getDrawable(R.drawable.note, null));
+                    final AnimationDrawable animateTerm = (AnimationDrawable) note.getDrawable();
+                    animateTerm.setOneShot(true);
+                    animateTerm.start();
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            animateTerm.stop();
+                            animateTerm.selectDrawable(0);
+                            note.setBackground(getResources().getDrawable(R.drawable.basic, null));
+                            FragmentNote fragmentNote = new FragmentNote();
+                            Bundle bundle = new Bundle();
+                            bundle.putBoolean("new_note", true);
+                            fragmentNote.setArguments(bundle);
+                            String tag = getResources().getString(R.string.note);
+                            fragmentManager.beginTransaction().replace(R.id.fragment_main, fragmentNote, tag)
+                                    .addToBackStack(tag)
+                                    .commit();
+                            canPress = true;
+                        }
+                    }, 300);
+                }
             }
         });
         term = root.findViewById(R.id.term_button);
         term.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                term.setBackground(getResources().getDrawable(R.drawable.referenece, null));
-                final AnimationDrawable animateTerm = (AnimationDrawable) term.getDrawable();
-                animateTerm.setOneShot(true);
-                animateTerm.start();
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        animateTerm.stop();
-                        animateTerm.selectDrawable(0);
-                        term.setBackground(getResources().getDrawable(R.drawable.basic, null));
-                        FragmentReference fragmentReference = new FragmentReference();
-                        fragmentManager.beginTransaction().replace(R.id.fragment_main, fragmentReference, "term")
-                                .addToBackStack("term")
-                                .commit();
-                    }
-                }, 300);
+                if (canPress) {
+                    canPress = false;
+                    term.setBackground(getResources().getDrawable(R.drawable.referenece, null));
+                    final AnimationDrawable animateTerm = (AnimationDrawable) term.getDrawable();
+                    animateTerm.setOneShot(true);
+                    animateTerm.start();
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            animateTerm.stop();
+                            animateTerm.selectDrawable(0);
+                            term.setBackground(getResources().getDrawable(R.drawable.basic, null));
+                            FragmentReference fragmentReference = new FragmentReference();
+                            fragmentManager.beginTransaction().replace(R.id.fragment_main, fragmentReference, "term")
+                                    .addToBackStack("term")
+                                    .commit();
+                            canPress = true;
+                        }
+                    }, 300);
+                }
 
             }
         });
@@ -117,6 +127,7 @@ public class FragmentNotes extends Fragment implements DialogCheckList.Checklist
         audio.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (canPress) {
                     audio.setBackground(getResources().getDrawable(R.drawable.audio, null));
                     final AnimationDrawable animateTerm = (AnimationDrawable) audio.getDrawable();
                     animateTerm.setOneShot(true);
@@ -131,9 +142,10 @@ public class FragmentNotes extends Fragment implements DialogCheckList.Checklist
                             fragmentManager.beginTransaction().replace(R.id.fragment_main, fragmentAudio, "audio")
                                     .addToBackStack("audio")
                                     .commit();
+                            canPress = true;
                         }
                     }, 300);
-
+                }
             }
         });
         list = root.findViewById(R.id.list_button);
@@ -175,6 +187,7 @@ public class FragmentNotes extends Fragment implements DialogCheckList.Checklist
             public void onChanged(List<PojoNote> pojoNotes) {
                 if (pojoNotes != null) {
                     adapterNote.setData(pojoNotes);
+                    notifyCancelPlayback();
                     System.out.println(" show notes size = " + pojoNotes.size());
                 }
             }
@@ -207,6 +220,11 @@ public class FragmentNotes extends Fragment implements DialogCheckList.Checklist
     }
 
     @Override
+    public void onCancelled() {
+        canPress = true;
+    }
+
+    @Override
     public void onDismiss(Dialog dialog, int position) {
         adapterNote.notifyItemChanged(position);
         this.canPress = true;
@@ -231,4 +249,13 @@ public class FragmentNotes extends Fragment implements DialogCheckList.Checklist
         dialog.dismiss();
     }
 
+    public void registerCancelPlaybacks(CancelPlayback cancelPlayback) {
+        cancelPlaybackList.add(cancelPlayback);
+    }
+
+    public void notifyCancelPlayback() {
+        for (CancelPlayback cancellation : cancelPlaybackList) {
+            cancellation.cancelPlayback();
+        }
+    }
 }

@@ -20,7 +20,7 @@
         android:layout_alignParentTop="true"
         android:layout_width="match_parent"
         android:layout_height="4px"
-        android:background="@android:color/holo_orange_light">
+        android:background="@color/new_yellow">
     </View>
 
     <View

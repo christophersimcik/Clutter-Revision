@@ -7,7 +7,7 @@
     >
     <shape
         android:shape="oval"
-        android:tint="@android:color/holo_red_light"
+        android:tint="@color/new_red"
         >
     </shape>
 </item>

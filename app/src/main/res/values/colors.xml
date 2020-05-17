@@ -15,4 +15,9 @@
     <color name="reference">@android:color/holo_blue_light</color>
     <color name="list">@android:color/holo_green_dark</color>
     <color name="primary">#AAA88E</color>
+    <color name="new_red">#ff3133</color>
+    <color name="new_green">#30e833</color>
+    <color name="new_blue">#2097c8</color>
+    <color name="new_yellow">#ebe837</color>
+    <color name="new_blue_dark">#3159b9</color>
 </resources>

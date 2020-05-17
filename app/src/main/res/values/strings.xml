@@ -5,4 +5,10 @@
     <string name="search_title_text">Search titles</string>
     <string name="search_keywords_text">Search keywords</string>
     <string name="search_type">search type</string>
+    <string name="list">list</string>
+    <string name="note">note</string>
+    <string name="audio">audio</string>
+    <string name="term">term</string>
+    <string name="book">book</string>
+    <string name="search">search</string>
 </resources>

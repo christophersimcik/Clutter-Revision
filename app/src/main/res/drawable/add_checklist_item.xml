@@ -7,7 +7,7 @@
         >
     <shape
     android:shape="rectangle"
-    android:tint="@android:color/holo_blue_dark"
+    android:tint="@color/new_blue"
     >
     <corners
         android:radius="2dp">

@@ -7,7 +7,7 @@
         >
     <shape
     android:shape="rectangle"
-        android:tint="@android:color/holo_red_light"
+        android:tint="@color/new_red"
     >
     <corners
         android:radius="2dp">
